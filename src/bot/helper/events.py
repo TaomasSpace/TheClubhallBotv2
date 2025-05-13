@@ -4,6 +4,7 @@ import discord
 from dotenv import load_dotenv
 import os
 from Database.initializeDB import init_db
+import helper.helper
 
 load_dotenv(dotenv_path=".env")
 WELCOME_CHANNEL_ID = os.getenv("WELCOME_CHANNEL_ID")
@@ -64,3 +65,29 @@ async def on_member_remove(member):
         member_count = member.guild.member_count
         message = f"It seems {member.name} has left us... We are now **{member_count}** members."
         await channel.send(message)
+
+@bot.event
+async def on_message(message: discord.Message):
+    if message.author.bot or message.webhook_id:
+        return
+
+    if message.author.id in helper.lowercase_locked:
+        try:
+            await message.delete()
+        except discord.Forbidden:
+            return
+        wh = await helper.get_channel_webhook(message.channel)
+        await wh.send(
+            content=message.content.lower(),
+            username=message.author.display_name,
+            avatar_url=message.author.display_avatar.url,
+            allowed_mentions=discord.AllowedMentions.all(),
+        )
+
+    content = message.content.lower()
+    for trigger, reply in helper.TRIGGER_RESPONSES.items():
+        if trigger.lower() in content:
+            await message.channel.send(reply)
+            break
+
+    await bot.process_commands(message)
