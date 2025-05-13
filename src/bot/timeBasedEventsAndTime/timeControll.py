@@ -4,11 +4,15 @@ import pathlib
 import os
 import sys
 import json
+import subprocess
 
+# TODO: add better error handling with Mail if there is an error here what shouldnt happen
 
 BACKUP_FILE = r"backup/backup.json"
 COUNTER = "counter"
 MONTH = "current_month"
+PYTHON3 = "python3"
+ROBINHOOD = r"robinHood/robinHood.py"
 
 
 def dailyReset():
@@ -27,8 +31,16 @@ def shopReset(): # all months
 
 
 def whichEvent():
-    # decide which event gets started
-    return True
+    """
+    Start a random event
+
+    Returns:
+    -True
+    """
+    num = random.randint(1, 1) # TODO: when there are more events it gets updated
+    match num:
+        case 1:
+            subprocess.run([PYTHON3, ROBINHOOD])
 
 
 def eventsAndSleep():
@@ -38,7 +50,7 @@ def eventsAndSleep():
     time_until_event = random.randint(0, time_until_midnight - 300) # -300 sec as a buffer if the event is long
     time.sleep(time_until_event)
 
-    whichEvent() # which event and than calls the event
+    whichEvent() # which event and than starts the event
 
     now = time.gmtime()
     time_until_midnight_from_now = ((23- now.tm_hour) * 3600 + (59 - now.tm_min) * 60 + (60- now.tm_sec))
@@ -47,8 +59,8 @@ def eventsAndSleep():
 
 def initBackupFile(counter_for_reset_weekly, current_month):
     data_to_load = {
-        "counter": counter_for_reset_weekly,
-        "current_month": current_month
+        COUNTER: counter_for_reset_weekly,
+        MONTH: current_month
     }
     json_object = json.dumps(data_to_load, indent=2)
     with open(BACKUP_FILE, "w") as jsonfile:
@@ -90,15 +102,12 @@ def main(counterForResetWeekly, currentMonth):
             counterForResetWeekly = 0
             updateBackupFile(counterForResetWeekly, COUNTER)
         
-        saved_Month_in_Backup = readValueFromBackupFile(MONTH)
-        if saved_Month_in_Backup != currentMonth:
+        if readValueFromBackupFile(MONTH) != currentMonth:
             shopReset()
             updateBackupFile(currentMonth, MONTH)
         
         eventsAndSleep()
 
-
-# TODO: add sys.arg so that if the script gets started with 1 argument its not from autostart so no loading backup from backup.json
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
