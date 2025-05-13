@@ -1,5 +1,9 @@
 import sqlite3
+from dotenv import load_dotenv
+import os
 
+load_dotenv(dotenv_path=".env")
+DB_PATH = os.getenv("DB_PATH")
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
