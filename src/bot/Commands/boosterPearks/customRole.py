@@ -1,4 +1,5 @@
 import discord
+from Database.databaseHelper import get_custom_role, set_custom_role
 
 async def customrole(interaction: discord.Interaction, name: str, color: str):
     member = interaction.user
