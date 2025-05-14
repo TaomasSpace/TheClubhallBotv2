@@ -1,7 +1,9 @@
 import discord
 
+
 def has_role(member: discord.Member, role_name: str):
     return any(role.name == role_name for role in member.roles)
+
 
 TRIGGER_RESPONSES = {
     "シャドウストーム": "Our beautiful majestic Emperor シャドウストーム! Long live our beloved King 👑",
@@ -14,6 +16,7 @@ TRIGGER_RESPONSES = {
 
 lowercase_locked: set[int] = set()
 webhook_cache: dict[int, discord.Webhook] = {}
+
 
 async def get_channel_webhook(channel: discord.TextChannel) -> discord.Webhook:
     wh = webhook_cache.get(channel.id)

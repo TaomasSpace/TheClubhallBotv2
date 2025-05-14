@@ -7,6 +7,7 @@ import os
 load_dotenv(dotenv_path=".env")
 ADMIN_ROLE_NAME = os.getenv("ADMIN_ROLE_NAME")
 
+
 async def setboostlevel(
     interaction: discord.Interaction, user: discord.Member, level: int
 ):

@@ -2,11 +2,10 @@ import discord
 from random import choice
 from helper.helper import has_role
 from helper.gifs import sheher_gifs, hehim_gifs
-from dotenv import load_dotenv
 import os
 
+
 async def good(interaction: discord.Interaction, user: discord.Member):
-    load_dotenv(dotenv_path=".env")
     SHEHER_ROLE_NAME = os.getenv("SHEHER_ROLE_NAME")
     HEHIM_ROLE_NAME = os.getenv("HEHIM_ROLE_NAME")
     undefined_gifs = sheher_gifs + hehim_gifs

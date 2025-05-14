@@ -1,15 +1,14 @@
 from bot_instance import bot
 from Database.databaseHelper import get_custom_role, delete_custom_role
 import discord
-from dotenv import load_dotenv
 import os
 from Database.initializeDB import init_db
 import helper.helper
 
-load_dotenv(dotenv_path=".env")
 WELCOME_CHANNEL_ID = os.getenv("WELCOME_CHANNEL_ID")
 EXIT_CHANNEL_ID = os.getenv("EXIT_CHANNEL_ID")
 BOOSTER_CHANNEL_ID = os.getenv("BOOSTER_CHANNEL_ID")
+
 
 @bot.event
 async def on_ready():
@@ -17,6 +16,7 @@ async def on_ready():
     await bot.tree.sync()
     print(f"Bot is online as {bot.user}")
     print("Guilds:", bot.guilds)
+
 
 @bot.event
 async def on_member_update(before: discord.Member, after: discord.Member):
@@ -40,6 +40,7 @@ async def on_member_update(before: discord.Member, after: discord.Member):
                 f"Check <https://discord.com/channels/1351475070312255498/1351528109702119496/1371189412125216869> to see what new features you unlock!"
             )
 
+
 @bot.event
 async def on_member_join(member):
     role = discord.utils.get(member.guild.roles, name="Member")
@@ -58,6 +59,7 @@ async def on_member_join(member):
         )
         await channel.send(message)
 
+
 @bot.event
 async def on_member_remove(member):
     channel = bot.get_channel(int(EXIT_CHANNEL_ID))
@@ -65,6 +67,7 @@ async def on_member_remove(member):
         member_count = member.guild.member_count
         message = f"It seems {member.name} has left us... We are now **{member_count}** members."
         await channel.send(message)
+
 
 @bot.event
 async def on_message(message: discord.Message):

@@ -1,6 +1,7 @@
 import discord
 from random import random
 
+
 async def goon(interaction: discord.Interaction, user: discord.Member):
 
     sender_id = interaction.user.id

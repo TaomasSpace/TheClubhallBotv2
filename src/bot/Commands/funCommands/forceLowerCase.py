@@ -1,6 +1,7 @@
 import discord
 from helper.helper import lowercase_locked
 
+
 async def forcelowercase(interaction: discord.Interaction, member: discord.Member):
 
     if member.id in lowercase_locked:

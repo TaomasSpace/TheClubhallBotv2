@@ -2,6 +2,7 @@ import discord
 from random import choice
 import helper.gifs
 
+
 async def dance(interaction: discord.Interaction):
     try:
         gif_url = choice(helper.gifs.dance_gifs)
