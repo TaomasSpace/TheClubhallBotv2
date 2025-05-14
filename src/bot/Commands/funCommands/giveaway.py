@@ -3,6 +3,9 @@ from helper.helper import has_role
 import os
 from random import choice
 import asyncio
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=".env")
 
 
 async def giveaway(interaction: discord.Interaction, duration: int, prize: str):

@@ -1,6 +1,9 @@
 import discord
 import os
 from helper.helper import get_channel_webhook, has_role
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=".env")
 
 
 async def imitate(interaction: discord.Interaction, user: discord.Member, msg: str):
