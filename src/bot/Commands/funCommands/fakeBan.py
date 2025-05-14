@@ -1,7 +1,9 @@
 import discord
 from helper.helper import get_channel_webhook, has_role
 import os
+from dotenv import load_dotenv
 
+load_dotenv(dotenv_path=".env")
 ADMIN_ROLE_NAME = os.getenv("ADMIN_ROLE_NAME")
 
 

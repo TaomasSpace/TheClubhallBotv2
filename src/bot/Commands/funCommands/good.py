@@ -3,6 +3,9 @@ from random import choice
 from helper.helper import has_role
 from helper.gifs import sheher_gifs, hehim_gifs
 import os
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=".env")
 
 
 async def good(interaction: discord.Interaction, user: discord.Member):

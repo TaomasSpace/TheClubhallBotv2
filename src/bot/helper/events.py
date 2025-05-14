@@ -4,6 +4,9 @@ import discord
 import os
 from Database.initializeDB import init_db
 import helper.helper
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=".env")
 
 WELCOME_CHANNEL_ID = os.getenv("WELCOME_CHANNEL_ID")
 EXIT_CHANNEL_ID = os.getenv("EXIT_CHANNEL_ID")
