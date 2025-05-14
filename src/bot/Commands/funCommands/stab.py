@@ -1,12 +1,11 @@
 import discord
 from random import random, choice, randint
 import helper.helper
-from dotenv import load_dotenv
 import os
 from helper.gifs import special_gifs, stab_gifs
 
-load_dotenv(dotenv_path=".env")
 OWNER_ROLE_NAME = os.getenv("OWNER_ROLE_NAME")
+
 
 async def stab(interaction: discord.Interaction, user: discord.Member):
 
@@ -64,4 +63,3 @@ async def stab(interaction: discord.Interaction, user: discord.Member):
             "Something went wrong during the stabbing attempt. Contact an admin.",
             ephemeral=True,
         )
-

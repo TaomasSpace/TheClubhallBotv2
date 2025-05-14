@@ -1,12 +1,11 @@
 import discord
 from helper.helper import has_role
-from dotenv import load_dotenv
 import os
 from random import choice
 import asyncio
 
+
 async def giveaway(interaction: discord.Interaction, duration: int, prize: str):
-    load_dotenv(dotenv_path=".env")
     ADMIN_ROLE_NAME = os.getenv("ADMIN_ROLE_NAME")
 
     if not has_role(interaction.user, ADMIN_ROLE_NAME):

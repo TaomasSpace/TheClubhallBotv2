@@ -1,6 +1,7 @@
 import discord
 from Database.databaseHelper import get_custom_role, get_boost_level, _fetchone
 
+
 async def grantrole(interaction: discord.Interaction, target: discord.Member):
     booster_id = str(interaction.user.id)
     target_id = str(target.id)

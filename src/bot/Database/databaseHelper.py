@@ -1,9 +1,8 @@
 import sqlite3
-from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path=".env")
 DB_PATH = os.getenv("DB_PATH")
+
 
 def _fetchone(query: str, params=()):
     conn = sqlite3.connect(DB_PATH)
@@ -21,12 +20,14 @@ def _execute(query: str, params=()):
     conn.commit()
     conn.close()
 
+
 def register_user(user_id: str, username: str):
     if not _fetchone("SELECT 1 FROM users WHERE user_id = ?", (user_id,)):
         _execute(
             "INSERT INTO users (user_id, username) VALUES (?,?)",
             (user_id, username, 5),
         )
+
 
 def get_custom_role(user_id: str):
     row = _fetchone("SELECT role_id FROM custom_roles WHERE user_id = ?", (user_id,))
@@ -45,6 +46,7 @@ def set_custom_role(user_id: str, role_id: int):
 
 def delete_custom_role(user_id: str):
     _execute("DELETE FROM custom_roles WHERE user_id = ?", (user_id,))
+
 
 def get_boost_level(user_id: str) -> int:
     row = _fetchone(
