@@ -6,7 +6,7 @@ import sys
 import json
 import subprocess
 
-# TODO: add better error handling with Mail if there is an error here what shouldnt happen
+# TODO: add better error handling with Mail if there is an error here what shouldn't happen
 
 BACKUP_FILE = r"backup/backup.json"
 COUNTER = "counter"
@@ -15,22 +15,22 @@ PYTHON3 = "python3"
 ROBINHOOD = r"robinHood/robinHood.py"
 
 
-def dailyReset():
+def daily_reset():
     # set all values from true to false in db(clubhall.db in the Game tab) for claimedDailyGift
     return True
 
 
-def weeklyReset():
-    # set all vlues from true to false in db(clubhall.db in the Game Section) for claimedWeeklGift
+def weekly_reset():
+    # set all values from true to false in db(clubhall.db in the Game Section) for claimedWeeklGift
     return True
 
 
-def shopReset(): # all months
+def shop_reset(): # all months
     # reset Shop items and start acution
     return True
 
 
-def whichEvent():
+def which_event():
     """
     Start a random event
 
@@ -50,7 +50,7 @@ def eventsAndSleep():
     time_until_event = random.randint(0, time_until_midnight - 300) # -300 sec as a buffer if the event is long
     time.sleep(time_until_event)
 
-    whichEvent() # which event and than starts the event
+    which_event() # which event and than starts the event
 
     now = time.gmtime()
     time_until_midnight_from_now = ((23- now.tm_hour) * 3600 + (59 - now.tm_min) * 60 + (60- now.tm_sec))
@@ -93,17 +93,17 @@ def loadValueFromBackupFile(load_that, load_this):
 
 def main(counterForResetWeekly, currentMonth):
     while True:
-        dailyReset()
+        daily_reset()
         counterForResetWeekly += 1
         updateBackupFile(counterForResetWeekly, COUNTER)
 
         if counterForResetWeekly >= 7:
-            weeklyReset()
+            weekly_reset()
             counterForResetWeekly = 0
             updateBackupFile(counterForResetWeekly, COUNTER)
         
         if readValueFromBackupFile(MONTH) != currentMonth:
-            shopReset()
+            shop_reset()
             updateBackupFile(currentMonth, MONTH)
         
         eventsAndSleep()
