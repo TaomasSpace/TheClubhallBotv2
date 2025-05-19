@@ -8,10 +8,7 @@ def has_role(member: discord.Member, role_name: str):
 TRIGGER_RESPONSES = {
     "シャドウストーム": "Our beautiful majestic Emperor シャドウストーム! Long live our beloved King 👑",
     "goodyb": "Our beautiful majestic Emperor goodyb! Long live our beloved King 👑",
-    "shadow": "Our beautiful majestic Emperor TAOMA™! Long live our beloved King 👑",
-    "taoma": "Our beautiful majestic Emperor TAOMA™! Long live our beloved King 👑",
     "Taoma": "Our beautiful majestic Emperor TAOMA™! Long live our beloved King 👑",
-    " King": "Our beautiful majestic Emperor TAOMA™! Long live our beloved King 👑",
 }
 
 lowercase_locked: set[int] = set()

@@ -15,11 +15,28 @@ async def fakeBan(interaction: discord.Interaction, user: discord.Member, reason
         return
 
     try:
-        await interaction.response.send_message(
+        await interaction.response.defer(ephemeral=True)
+
+        webhook = await get_channel_webhook(interaction.channel)
+        if webhook is None:
+            await interaction.followup.send(
+                "❌ Webhook not found or could not be created.", ephemeral=True
+            )
+            return
+
+        await webhook.send(
             f"🚫 {user.mention} has been permanently banned by {interaction.user.mention} for '{reason}'.",
-            ephemeral=False,
+            username="MEMBER MODERATION",
+            avatar_url="https://i.imgur.com/AfFp7pu.png",
         )
+
+        await interaction.followup.send("✅ Fake ban sent.", ephemeral=True)
+
     except Exception as e:
-        await interaction.response.send_message(
-            f"❌ Failed to fake ban: {e}", ephemeral=True
-        )
+        print("Fakeban error:", e)
+        try:
+            await interaction.followup.send(
+                f"❌ Failed to fake ban: {e}", ephemeral=True
+            )
+        except:
+            pass

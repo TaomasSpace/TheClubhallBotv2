@@ -77,7 +77,7 @@ async def on_message(message: discord.Message):
     if message.author.bot or message.webhook_id:
         return
 
-    if message.author.id in helper.lowercase_locked:
+    if message.author.id in helper.helper.lowercase_locked:
         try:
             await message.delete()
         except discord.Forbidden:
