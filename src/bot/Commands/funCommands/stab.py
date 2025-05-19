@@ -3,7 +3,9 @@ from random import random, choice, randint
 import helper.helper
 import os
 from helper.gifs import special_gifs, stab_gifs
+from dotenv import load_dotenv
 
+load_dotenv(dotenv_path=".env")
 OWNER_ROLE_NAME = os.getenv("OWNER_ROLE_NAME")
 
 
