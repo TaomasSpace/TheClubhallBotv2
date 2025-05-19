@@ -1,19 +1,25 @@
 import time
 import random
-import pathlib
+from pathlib import Path
 import os
 import sys
 import json
 import subprocess
+import configparser
 
 # TODO: add better error handling with Mail if there is an error here what shouldn't happen
+
+CONFIG_PATH = Path(r"../config.ini")
+config = configparser.ConfigParser()
+config.optionxform = str # not so important only if you use array/lists
+if CONFIG_PATH.is_file() and CONFIG_PATH.exists():
+    config.read(CONFIG_PATH)
 
 BACKUP_FILE = r"backup/backup.json"
 COUNTER = "counter"
 MONTH = "current_month"
 PYTHON3 = "python3"
-ROBINHOOD = r"robinHood/robinHood.py"
-
+ROBINHOOD = config['Events']['robinhood']
 
 def daily_reset():
     # set all values from true to false in db(clubhall.db in the Game tab) for claimedDailyGift
@@ -21,7 +27,7 @@ def daily_reset():
 
 
 def weekly_reset():
-    # set all values from true to false in db(clubhall.db in the Game Section) for claimedWeeklGift
+    # set all values from true to false in db(clubhall.db in the Game Section) for claimedWeeklyGift
     return True
 
 
@@ -115,8 +121,8 @@ if __name__ == "__main__":
         now = time.gmtime()
         currentMonth = time.strftime("%m", now)
         initBackupFile(counterForResetWeekly, currentMonth)
-        main(counterForResetWeekly, currentMonth)
+        # main(counterForResetWeekly, currentMonth)
 
     else:
         counter, current_month = loadValueFromBackupFile(COUNTER, MONTH)
-        main(counter, current_month)
+        # main(counter, current_month)
