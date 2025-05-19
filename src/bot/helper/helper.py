@@ -1,4 +1,12 @@
 import discord
+from Database.databaseHelper import get_money, set_money
+from discord import ui
+import os
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=".env")
+
+BOT_USERID = os.getenv("BOT_USERID")
 
 
 def has_role(member: discord.Member, role_name: str):
@@ -25,3 +33,67 @@ async def get_channel_webhook(channel: discord.TextChannel) -> discord.Webhook:
     ) or await channel.create_webhook(name="LowercaseRelay")
     webhook_cache[channel.id] = wh
     return wh
+
+
+def safe_add_coins(user_id: str, amount: int) -> int:
+    if amount <= 0:
+        return 0
+
+    bank_balance = get_money(BOT_USERID)
+
+    if bank_balance <= 0:
+        return 0
+
+    addable = min(amount, bank_balance)
+
+    set_money(BOT_USERID, bank_balance - addable)
+
+    old_balance = get_money(user_id)
+    set_money(user_id, old_balance + addable)
+
+    return addable
+
+
+class RequestView(ui.View):
+    def __init__(self, sender_id, receiver_id, amount):
+        super().__init__(timeout=60)
+        self.sender_id = sender_id
+        self.receiver_id = receiver_id
+        self.amount = amount
+
+    @ui.button(label="Accept", style=discord.ButtonStyle.success)
+    async def accept(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != self.receiver_id:
+            await interaction.response.send_message(
+                "This request isn't for you.", ephemeral=True
+            )
+            return
+
+        sender_balance = get_money(str(self.sender_id))
+        receiver_balance = get_money(str(self.receiver_id))
+
+        if receiver_balance < self.amount:
+            await interaction.response.send_message(
+                "You don't have enough clubhall coins to accept this request.",
+                ephemeral=True,
+            )
+            return
+
+        set_money(str(self.receiver_id), receiver_balance - self.amount)
+        set_money(str(self.sender_id), sender_balance + self.amount)
+        await interaction.response.edit_message(
+            content=f"✅ Request accepted. {self.amount} clubhall coins sent!",
+            view=None,
+        )
+
+    @ui.button(label="Decline", style=discord.ButtonStyle.danger)
+    async def decline(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != self.receiver_id:
+            await interaction.response.send_message(
+                "This request isn't for you.", ephemeral=True
+            )
+            return
+
+        await interaction.response.edit_message(
+            content="❌ Request declined.", view=None
+        )
