@@ -1,7 +1,6 @@
 import time
 import random
 from pathlib import Path
-import os
 import sys
 import json
 import subprocess
@@ -15,11 +14,6 @@ config.optionxform = str # not so important only if you use array/lists
 if CONFIG_PATH.is_file() and CONFIG_PATH.exists():
     config.read(CONFIG_PATH)
 
-BACKUP_FILE = r"backup/backup.json"
-COUNTER = "counter"
-MONTH = "current_month"
-PYTHON3 = "python3"
-ROBINHOOD = config['Events']['robinhood']
 
 def daily_reset():
     # set all values from true to false in db(clubhall.db in the Game tab) for claimedDailyGift
@@ -32,7 +26,7 @@ def weekly_reset():
 
 
 def shop_reset(): # all months
-    # reset Shop items and start acution
+    # reset Shop items and start auction
     return True
 
 
@@ -46,83 +40,85 @@ def which_event():
     num = random.randint(1, 1) # TODO: when there are more events it gets updated
     match num:
         case 1:
-            subprocess.run([PYTHON3, ROBINHOOD])
+            subprocess.run([config['SystemData']['python'], config['Events']['robinhood']])
 
 
-def eventsAndSleep():
+def events_and_sleep():
     now = time.gmtime()
     # time until next midnight in seconds
     time_until_midnight = ((23- now.tm_hour) * 3600 + (59 - now.tm_min) * 60 + (60- now.tm_sec))
     time_until_event = random.randint(0, time_until_midnight - 300) # -300 sec as a buffer if the event is long
     time.sleep(time_until_event)
 
-    which_event() # which event and than starts the event
+    which_event() # which event and then starts the event
 
     now = time.gmtime()
     time_until_midnight_from_now = ((23- now.tm_hour) * 3600 + (59 - now.tm_min) * 60 + (60- now.tm_sec))
     time.sleep(time_until_midnight_from_now)
 
 
-def initBackupFile(counter_for_reset_weekly, current_month):
+def init_backup_file(counter_for_reset_weekly_temp, current_month_temp):
+
     data_to_load = {
-        COUNTER: counter_for_reset_weekly,
-        MONTH: current_month
+        config['RandomTimeBasedStuff']['counter']: counter_for_reset_weekly_temp,
+        config['RandomTimeBasedStuff']['month']: current_month_temp
     }
+
     json_object = json.dumps(data_to_load, indent=2)
-    with open(BACKUP_FILE, "w") as jsonfile:
+    with open(config['Backup']['backup_file'], "w") as jsonfile:
         jsonfile.write(json_object)
 
 
-def updateBackupFile(update_to, update_that):
-    with open(BACKUP_FILE, "r") as jsonfile:
+def update_backup_file(update_to, update_that):
+    with open(config['Backup']['backup_file'], "r") as jsonfile:
         data = json.load(jsonfile)
     
     data[update_that] = update_to
 
-    with open(BACKUP_FILE, "w") as jsonfile:
+    with open(config['Backup']['backup_file'], "w") as jsonfile:
         json.dump(data, jsonfile, indent=2)
 
 
-def readValueFromBackupFile(read_that):
-    with open(BACKUP_FILE, "r") as jsonfile:
+def read_value_from_backup_file(read_that):
+    with open(config['Backup']['backup_file'], "r") as jsonfile:
         data = json.load(jsonfile)
 
     return data[read_that]
 
 
-def loadValueFromBackupFile(load_that, load_this):
-    with open(BACKUP_FILE, "r") as jsonfile:
+def load_value_from_backup_file(load_that, load_this):
+    with open(config['Backup']['backup_file'], "r") as jsonfile:
         data = json.load(jsonfile)
 
     return data[load_that], data[load_this]
 
 
-def main(counterForResetWeekly, currentMonth):
+def main(counter_for_reset_weekly_main, current_month_main):
     while True:
         daily_reset()
-        counterForResetWeekly += 1
-        updateBackupFile(counterForResetWeekly, COUNTER)
+        counter_for_reset_weekly_main += 1
+        update_backup_file(counter_for_reset_weekly_main, config['RandomTimeBasedStuff']['counter'])
 
-        if counterForResetWeekly >= 7:
+        if counter_for_reset_weekly_main >= 7:
             weekly_reset()
-            counterForResetWeekly = 0
-            updateBackupFile(counterForResetWeekly, COUNTER)
+            counter_for_reset_weekly_main = 0
+            update_backup_file(counter_for_reset_weekly_main, config['RandomTimeBasedStuff']['counter'])
         
-        if readValueFromBackupFile(MONTH) != currentMonth:
+        if read_value_from_backup_file(config['RandomTimeBasedStuff']['month']) != current_month_main:
             shop_reset()
-            updateBackupFile(currentMonth, MONTH)
+            update_backup_file(current_month_main, config['RandomTimeBasedStuff']['month'])
         
-        eventsAndSleep()
+        events_and_sleep()
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        counterForResetWeekly = 0
-        now = time.gmtime()
-        currentMonth = time.strftime("%m", now)
-        initBackupFile(counterForResetWeekly, currentMonth)
-        # main(counterForResetWeekly, currentMonth)
+        counter_for_reset_weekly_init = 0
+        now_init = time.gmtime()
+        current_month_init = time.strftime("%m", now_init)
+        init_backup_file(counter_for_reset_weekly_init, current_month_init)
+        main(counter_for_reset_weekly_init, current_month_init)
 
     else:
-        counter, current_month = loadValueFromBackupFile(COUNTER, MONTH)
-        # main(counter, current_month)
+        counter, current_month = load_value_from_backup_file(config['RandomTimeBasedStuff']['counter'], config['RandomTimeBasedStuff']['month'])
+        main(counter, current_month)
