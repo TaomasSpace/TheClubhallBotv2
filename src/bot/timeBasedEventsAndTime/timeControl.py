@@ -5,14 +5,45 @@ import sys
 import json
 import subprocess
 import configparser
+import logging
+from logging.handlers import TimedRotatingFileHandler
 
 # TODO: add better error handling with Mail if there is an error here what shouldn't happen
 
 CONFIG_PATH = Path(r"../config.ini")
+LOGFILE_PATH = Path(r"./logs/logsTimeControl/timeLogs.log")
 config = configparser.ConfigParser()
 config.optionxform = str # not so important only if you use array/lists
 if CONFIG_PATH.is_file() and CONFIG_PATH.exists():
     config.read(CONFIG_PATH)
+
+else:
+    print(f"{CONFIG_PATH}, wasn't found!")
+
+
+def setup_logger(name=config['LoggerTimeControl']['logger_name'], log_path=LOGFILE_PATH):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter(
+        '%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        '%Y-%m-%d %H:%M:%S'
+    )
+    formatter.converter = time.gmtime
+
+    handler = TimedRotatingFileHandler(
+        filename=log_path,
+        when=config['LoggerTimeControl']['when'],
+        interval=int(config['LoggerTimeControl']['interval']),
+        encoding=config['LoggerTimeControl']['encoding'],
+        utc=config.getboolean('LoggerTimeControl','utc')
+    )
+    handler.setFormatter(formatter)
+
+    if not logger.handlers:
+        logger.addHandler(handler)
+
+    return logger
 
 
 def daily_reset():
@@ -94,6 +125,13 @@ def load_value_from_backup_file(load_that, load_this):
 
 
 def main(counter_for_reset_weekly_main, current_month_main):
+
+    if LOGFILE_PATH.exists() and LOGFILE_PATH.is_file():
+        logger = setup_logger(name="timeLogger", log_path=LOGFILE_PATH)
+
+    else:
+        print(f"{LOGFILE_PATH} wasn't found!")
+        
     while True:
         daily_reset()
         counter_for_reset_weekly_main += 1
