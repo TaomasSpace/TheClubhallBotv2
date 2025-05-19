@@ -16,6 +16,8 @@ from Commands.funCommands import (
     forceLowerCase,
     fakeBan,
 )
+from Commands.gameCommands.adminCommands import addMoney, removeMoney, addServerMoney
+from Commands.gameCommands.manageMoney import request, donate, balance
 
 load_dotenv(dotenv_path=".env")
 token = os.getenv("bot_token")
@@ -106,6 +108,54 @@ async def fakeBanCommand(
     interaction: discord.Interaction, user: discord.Member, reason: str
 ):
     await fakeBan.fakeBan(interaction=interaction, user=user, reason=reason)
+
+
+@bot.tree.command(
+    name="addmoney", description="Give coins to a user (Admin/Owner only)"
+)
+async def addMoneyCommand(
+    interaction: discord.Interaction, user: discord.Member, amount: int
+):
+    await addMoney.addMoney(interaction=interaction, user=user, amount=amount)
+
+
+@bot.tree.command(
+    name="remove", description="Remove clubhall coins from a user (Admin/Owner only)"
+)
+async def removeCommand(
+    interaction: discord.Interaction, user: discord.Member, amount: int
+):
+    await removeMoney.remove(interaction=interaction, user=user, amount=amount)
+
+
+@bot.tree.command(
+    name="balance", description="Check someone else's clubhall coin balance"
+)
+async def balanceCommand(interaction: discord.Interaction, user: discord.Member):
+    await balance.balance(interaction=interaction, user=user)
+
+
+@bot.tree.command(
+    name="request", description="Request clubhall coins from another user"
+)
+async def requestCommand(
+    interaction: discord.Interaction, user: discord.Member, amount: int, reason: str
+):
+    await request.request(
+        interaction=interaction, user=user, amount=amount, reason=reason
+    )
+
+
+@bot.tree.command(name="donate", description="Send coins to another user")
+async def donateCommand(
+    interaction: discord.Interaction, user: discord.Member, amount: int
+):
+    await donate.donate(interaction=interaction, user=user, amount=amount)
+
+
+@bot.tree.command(name="addservermoney", description="add money to the server/bank")
+async def addServerMoneyCommand(interaction: discord.Interaction, amount: int):
+    await addServerMoney.addServerMoney(interaction=interaction, amount=amount)
 
 
 bot.run(token)

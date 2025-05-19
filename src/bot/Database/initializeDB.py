@@ -20,5 +20,19 @@ def init_db():
     """
     )
 
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS users (
+            user_id TEXT PRIMARY KEY,
+            username TEXT,
+            money INTEGER DEFAULT 0
+        )
+    """
+    )
+    cursor.execute(
+        "INSERT OR IGNORE INTO users (user_id, username, money) VALUES (?, ?, ?)",
+        ("1371864280332501072", "Clubhall Bank", 1000000000),
+    )
+
     conn.commit()
     conn.close()

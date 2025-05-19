@@ -26,7 +26,7 @@ def _execute(query: str, params=()):
 def register_user(user_id: str, username: str):
     if not _fetchone("SELECT 1 FROM users WHERE user_id = ?", (user_id,)):
         _execute(
-            "INSERT INTO users (user_id, username) VALUES (?,?)",
+            "INSERT INTO users (user_id, username, money) VALUES (?,?,?)",
             (user_id, username, 5),
         )
 
@@ -61,3 +61,12 @@ def set_boost_level(user_id: str, level: int):
     _execute(
         "UPDATE custom_roles SET boost_level = ? WHERE user_id = ?", (level, user_id)
     )
+
+
+def get_money(user_id: str) -> int:
+    row = _fetchone("SELECT money FROM users WHERE user_id = ?", (user_id,))
+    return row[0] if row else 0
+
+
+def set_money(user_id: str, amount: int):
+    _execute("UPDATE users SET money = ? WHERE user_id = ?", (amount, user_id))
