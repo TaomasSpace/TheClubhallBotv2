@@ -1,3 +1,22 @@
+"""
+GIF Collections for Bot Reactions
+
+This module defines categorized lists of GIF URLs used in various Discord bot commands
+(e.g. punch, stab, dance, gendered compliments). These collections are randomly accessed
+at runtime to enhance user interaction and provide a dynamic visual response.
+
+Categories:
+- punch_gifs: Action-based punch animations
+- special_gifs: Unique or rare reaction animations (used in special cases)
+- stab_gifs: Combat-themed stabbing animations
+- dance_gifs: Light-hearted dance GIFs
+- sheher_gifs / hehim_gifs: Gendered compliment reactions
+
+Note:
+All URLs are external and publicly available. Ensure you have fallback behavior if any
+GIFs fail to load, and avoid excessive reliance on unstable image hosts.
+"""
+
 punch_gifs = [
     "https://media1.tenor.com/m/BoYBoopIkBcAAAAC/anime-smash.gif",
     "https://media4.giphy.com/media/NuiEoMDbstN0J2KAiH/giphy.gif",

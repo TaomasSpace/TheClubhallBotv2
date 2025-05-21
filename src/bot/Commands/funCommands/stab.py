@@ -5,14 +5,16 @@ import os
 from helper.gifs import special_gifs, stab_gifs
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv(dotenv_path=".env")
 OWNER_ROLE_NAME = os.getenv("OWNER_ROLE_NAME")
 
-
+# Handles the "stab" interaction, with chance-based outcomes and special behavior for owners
 async def stab(interaction: discord.Interaction, user: discord.Member):
-
     sender_id = interaction.user.id
+
     try:
+        # Handle self-stabbing with lower or higher success chance (if user is an owner)
         if user.id == sender_id:
             chance = 0.20
             if helper.helper.has_role(interaction.user, OWNER_ROLE_NAME):
@@ -33,9 +35,11 @@ async def stab(interaction: discord.Interaction, user: discord.Member):
                 )
                 return
 
+        # Regular stab against another user – success chance increases for owners
         chance = 0.50
         if helper.helper.has_role(interaction.user, OWNER_ROLE_NAME):
             chance = 0.90
+
         if random() < chance:
             gif_url = choice(stab_gifs)
             if gif_url:
@@ -50,6 +54,7 @@ async def stab(interaction: discord.Interaction, user: discord.Member):
                     "No stab GIFs found in the database.", ephemeral=True
                 )
         else:
+            # Failure case: pick a random humorous failure message
             fail_messages = [
                 "Isn't that illegal?",
                 "You don't have a knife.",
@@ -59,7 +64,9 @@ async def stab(interaction: discord.Interaction, user: discord.Member):
                 "Your knife broke!",
             ]
             await interaction.response.send_message(choice(fail_messages))
+
     except Exception as e:
+        # Catch-all error handling with logging
         print("Fehler im stab-Command:", e)
         await interaction.response.send_message(
             "Something went wrong during the stabbing attempt. Contact an admin.",

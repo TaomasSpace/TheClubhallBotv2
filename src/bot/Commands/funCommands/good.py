@@ -5,14 +5,17 @@ from helper.gifs import sheher_gifs, hehim_gifs
 import os
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv(dotenv_path=".env")
 
-
+# Sends a gender-personalized "good [X]" message with a matching GIF
 async def good(interaction: discord.Interaction, user: discord.Member):
     SHEHER_ROLE_NAME = os.getenv("SHEHER_ROLE_NAME")
     HEHIM_ROLE_NAME = os.getenv("HEHIM_ROLE_NAME")
     undefined_gifs = sheher_gifs + hehim_gifs
+
     try:
+        # If user has she/her role → send "good girl" message
         if has_role(user, SHEHER_ROLE_NAME):
             gif_url = choice(sheher_gifs)
             if gif_url:
@@ -21,12 +24,13 @@ async def good(interaction: discord.Interaction, user: discord.Member):
                     color=discord.Color.red(),
                 )
                 embed.set_image(url=gif_url)
-                print(gif_url)
                 await interaction.response.send_message(embed=embed)
             else:
                 await interaction.response.send_message(
                     "No good girl GIFs found in the database.", ephemeral=False
                 )
+
+        # If user has he/him role → send "good boy" message
         elif has_role(user, HEHIM_ROLE_NAME):
             gif_url = choice(hehim_gifs)
             if gif_url:
@@ -35,12 +39,13 @@ async def good(interaction: discord.Interaction, user: discord.Member):
                     color=discord.Color.red(),
                 )
                 embed.set_image(url=gif_url)
-                print(gif_url)
                 await interaction.response.send_message(embed=embed)
             else:
                 await interaction.response.send_message(
                     "No good boy GIFs found in the database.", ephemeral=False
                 )
+
+        # If user has neither role → send neutral "good child" message
         else:
             gif_url = choice(undefined_gifs)
             if gif_url:
@@ -49,7 +54,6 @@ async def good(interaction: discord.Interaction, user: discord.Member):
                     color=discord.Color.red(),
                 )
                 embed.set_image(url=gif_url)
-                print(gif_url)
                 await interaction.response.send_message(embed=embed)
             else:
                 await interaction.response.send_message(
@@ -57,6 +61,7 @@ async def good(interaction: discord.Interaction, user: discord.Member):
                 )
 
     except:
+        # Generic error handler (ideally should catch specific exceptions and log)
         await interaction.response.send_message(
-            "Command didnt work, sry :(", ephemeral=True
+            "Command didn't work, sorry :(", ephemeral=True
         )
