@@ -3,7 +3,7 @@ from Database.databaseHelper import get_custom_role, delete_custom_role
 import discord
 import os
 from Database.initializeDB import init_db
-import helper.helper
+from helper.helper import TRIGGER_RESPONSES, lowercase_locked, get_channel_webhook
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -13,6 +13,7 @@ WELCOME_CHANNEL_ID = os.getenv("WELCOME_CHANNEL_ID")
 EXIT_CHANNEL_ID = os.getenv("EXIT_CHANNEL_ID")
 BOOSTER_CHANNEL_ID = os.getenv("BOOSTER_CHANNEL_ID")
 
+
 # Event: Bot is ready
 @bot.event
 async def on_ready():
@@ -20,6 +21,7 @@ async def on_ready():
     await bot.tree.sync()  # Ensure slash commands are registered
     print(f"Bot is online as {bot.user}")
     print("Guilds:", bot.guilds)
+
 
 # Event: Member updates (e.g. starts or stops boosting)
 @bot.event
@@ -46,6 +48,7 @@ async def on_member_update(before: discord.Member, after: discord.Member):
                 f"Check <https://discord.com/channels/1351475070312255498/1351528109702119496/1371189412125216869> to see what new features you unlock!"
             )
 
+
 # Event: New member joins → assign role and send welcome message
 @bot.event
 async def on_member_join(member):
@@ -65,6 +68,7 @@ async def on_member_join(member):
         )
         await channel.send(message)
 
+
 # Event: Member leaves → send exit message
 @bot.event
 async def on_member_remove(member):
@@ -74,6 +78,7 @@ async def on_member_remove(member):
         message = f"It seems {member.name} has left us... We are now **{member_count}** members."
         await channel.send(message)
 
+
 # Event: On every new message
 @bot.event
 async def on_message(message: discord.Message):
@@ -82,12 +87,12 @@ async def on_message(message: discord.Message):
         return
 
     # Forced lowercase handling
-    if message.author.id in helper.helper.lowercase_locked:
+    if message.author.id in lowercase_locked:
         try:
             await message.delete()
         except discord.Forbidden:
             return
-        wh = await helper.get_channel_webhook(message.channel)
+        wh = await get_channel_webhook(message.channel)
         await wh.send(
             content=message.content.lower(),
             username=message.author.display_name,
@@ -97,7 +102,7 @@ async def on_message(message: discord.Message):
 
     # Trigger response check (basic keyword-response system)
     content = message.content.lower()
-    for trigger, reply in helper.TRIGGER_RESPONSES.items():
+    for trigger, reply in TRIGGER_RESPONSES.items():
         if trigger.lower() in content:
             await message.channel.send(reply)
             break

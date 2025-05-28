@@ -1,5 +1,5 @@
 import discord
-from Database.databaseHelper import get_money, set_money
+from Database.databaseHelper import get_money, set_money, get_stats
 from discord import ui
 import os
 from dotenv import load_dotenv
@@ -8,9 +8,11 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=".env")
 BOT_USERID = os.getenv("BOT_USERID")
 
+
 # Checks if a Discord member has a specific role by name
 def has_role(member: discord.Member, role_name: str):
     return any(role.name == role_name for role in member.roles)
+
 
 # Trigger-based auto-reply map (case-sensitive, evaluated manually)
 TRIGGER_RESPONSES = {
@@ -19,11 +21,36 @@ TRIGGER_RESPONSES = {
     "Taoma": "Our beautiful majestic Emperor TAOMA™! Long live our beloved King 👑",
 }
 
+ROLE_THRESHOLDS = {
+    "intelligence": [
+        ("Neuromancer", 50),
+        ("Mindlord", 100),
+    ],
+    "strength": [
+        ("Juggernaut", 50),
+        ("Warriour", 100),
+    ],
+    "stealth": [
+        ("Shadow", 50),
+        ("Ninja", 100),
+    ],
+    "influence": [
+        ("Charmer", 50),
+        ("Manipulator", 100),
+    ],
+    "awareness": [
+        ("Seer", 50),
+        ("Oracle", 100),
+    ],
+}
+
+
 # Users whose messages will be force-converted to lowercase
 lowercase_locked: set[int] = set()
 
 # Webhook cache for reuse across messages
 webhook_cache: dict[int, discord.Webhook] = {}
+
 
 # Retrieves or creates a reusable webhook for a given text channel
 async def get_channel_webhook(channel: discord.TextChannel) -> discord.Webhook:
@@ -36,6 +63,7 @@ async def get_channel_webhook(channel: discord.TextChannel) -> discord.Webhook:
     ) or await channel.create_webhook(name="LowercaseRelay")
     webhook_cache[channel.id] = wh
     return wh
+
 
 # Safely adds coins to a user's balance, respecting the server's (bank) balance limit
 def safe_add_coins(user_id: str, amount: int) -> int:
@@ -54,6 +82,7 @@ def safe_add_coins(user_id: str, amount: int) -> int:
     set_money(user_id, old_balance + addable)
 
     return addable
+
 
 # UI component for accepting or declining a coin transfer request
 class RequestView(ui.View):
@@ -103,3 +132,36 @@ class RequestView(ui.View):
         await interaction.response.edit_message(
             content="❌ Request declined.", view=None
         )
+
+
+async def sync_stat_roles(member: discord.Member):
+    stats = get_stats(str(member.id))
+
+    for stat, thresholds in ROLE_THRESHOLDS.items():
+        for role_name, threshold in thresholds:
+            role = discord.utils.get(member.guild.roles, name=role_name)
+            if role is None:
+                try:
+                    role = await member.guild.create_role(
+                        name=role_name,
+                        reason=f"Created for stat: {stat}, threshold: {threshold}",
+                    )
+                    print(f"➕ Created role: {role_name}")
+                except discord.Forbidden:
+                    print(f"❌ Bot has no permission to create role: {role_name}")
+                    continue
+                except Exception as e:
+                    print(f"❌ Failed to create role {role_name}: {e}")
+                    continue
+
+            has_role = role in member.roles
+            meets_req = stats.get(stat, 0) >= threshold
+
+            if meets_req and not has_role:
+                await member.add_roles(
+                    role, reason=f"{stat} {stats[stat]} ≥ {threshold}"
+                )
+            elif not meets_req and has_role:
+                await member.remove_roles(
+                    role, reason=f"{stat} {stats[stat]} < {threshold}"
+                )

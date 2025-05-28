@@ -2,13 +2,13 @@ from dotenv import load_dotenv
 import os
 import discord
 from helper.helper import has_role, safe_add_coins
-from Database.databaseHelper import register_user
 
 # Load environment variables
 load_dotenv(dotenv_path=".env")
 
 ADMIN_ROLE_NAME = os.getenv("ADMIN_ROLE_NAME")
 BOT_USERID = os.getenv("BOT_USERID")  # Used as the server/bank account ID
+
 
 # Adds coins to the server’s central bank account (admin-only)
 async def addServerMoney(interaction: discord.Interaction, amount: int):
