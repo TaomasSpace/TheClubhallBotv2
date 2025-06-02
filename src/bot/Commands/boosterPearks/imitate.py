@@ -6,12 +6,13 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv(dotenv_path=".env")
 
+
 # Sends a message via webhook that mimics another user (admin-only)
 async def imitate(interaction: discord.Interaction, user: discord.Member, msg: str):
     ADMIN_ROLE_NAME = os.getenv("ADMIN_ROLE_NAME")
 
     # Permission check: only users with the admin role may execute this command
-    if not has_role(interaction.user, ADMIN_ROLE_NAME):
+    if not has_role(interaction.user, ADMIN_ROLE_NAME) and not user.premium_since:
         await interaction.response.send_message(
             "You don't have permission to use this command.", ephemeral=True
         )

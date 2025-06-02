@@ -1,10 +1,11 @@
 from bot_instance import bot
-from Database.databaseHelper import get_custom_role, delete_custom_role
+from Database.databaseHelper import get_custom_role, delete_custom_role, _fetchone
 import discord
 import os
 from Database.initializeDB import init_db
 from helper.helper import TRIGGER_RESPONSES, lowercase_locked, get_channel_webhook
 from dotenv import load_dotenv
+from discord import app_commands
 
 # Load environment variables
 load_dotenv(dotenv_path=".env")
@@ -44,7 +45,6 @@ async def on_member_update(before: discord.Member, after: discord.Member):
         if channel:
             await channel.send(
                 f"🎉 {after.mention} just boosted the server — thank you so much for the support! 💜\n"
-                f"<@!756537363509018736> will update your booster level soon.\n"
                 f"Check <https://discord.com/channels/1351475070312255498/1351528109702119496/1371189412125216869> to see what new features you unlock!"
             )
 
@@ -109,3 +109,52 @@ async def on_message(message: discord.Message):
 
     # Ensure command processing still works
     await bot.process_commands(message)
+
+
+@bot.tree.error
+async def on_app_command_error(
+    interaction: discord.Interaction, error: app_commands.AppCommandError
+):
+    if isinstance(error, app_commands.errors.CommandOnCooldown):
+        await interaction.response.send_message(
+            f"⏳ Please wait {error.retry_after:.1f} seconds before using this command again.",
+            ephemeral=True,
+        )
+    else:
+        raise error
+
+
+@bot.event
+async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
+    if payload.member is None or payload.member.bot:
+        return
+
+    row = _fetchone(
+        "SELECT role_id FROM reaction_roles WHERE message_id = ? AND emoji = ?",
+        (str(payload.message_id), str(payload.emoji)),
+    )
+    if not row:
+        return
+
+    role = payload.member.guild.get_role(int(row[0]))
+    if role:
+        await payload.member.add_roles(role, reason="Reaction role added")
+
+
+@bot.event
+async def on_raw_reaction_remove(payload: discord.RawReactionActionEvent):
+    guild = bot.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
+    if member is None or member.bot:
+        return
+
+    row = _fetchone(
+        "SELECT role_id FROM reaction_roles WHERE message_id = ? AND emoji = ?",
+        (str(payload.message_id), str(payload.emoji)),
+    )
+    if not row:
+        return
+
+    role = guild.get_role(int(row[0]))
+    if role:
+        await member.remove_roles(role, reason="Reaction role removed")

@@ -84,18 +84,10 @@ def delete_custom_role(user_id: str):
     _execute("DELETE FROM custom_roles WHERE user_id = ?", (user_id,))
 
 
-# Retrieves a user's boost level (defaults to 1 if not set)
-def get_boost_level(user_id: str) -> int:
-    row = _fetchone(
-        "SELECT boost_level FROM custom_roles WHERE user_id = ?", (user_id,)
-    )
-    return row[0] if row else 1
-
-
-# Updates a user's boost level
-def set_boost_level(user_id: str, level: int):
+def add_stat_points(user_id: str, delta: int):
     _execute(
-        "UPDATE custom_roles SET boost_level = ? WHERE user_id = ?", (level, user_id)
+        "UPDATE users SET stat_points = stat_points + ? WHERE user_id = ?",
+        (delta, user_id),
     )
 
 
