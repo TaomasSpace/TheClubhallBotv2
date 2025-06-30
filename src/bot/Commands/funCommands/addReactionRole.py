@@ -10,14 +10,16 @@ ADMIN_ROLE_NAME = os.getenv("ADMIN_ROLE_NAME")
 
 
 async def addcolorreactionrole(
-    interaction: discord.Interaction, emoji: str, role: discord.Role
+    interaction: discord.Interaction,
+    target_message_id: int,
+    emoji: str,
+    role: discord.Role,
 ):
     if not has_role(interaction.user, ADMIN_ROLE_NAME):
         await interaction.response.send_message("No permission.", ephemeral=True)
         return
 
-    target_message_id = 1378991127868211200
-    channel = interaction.guild.get_channel(1351821732586979378)
+    channel = interaction.channel
     try:
         message = await channel.fetch_message(target_message_id)
         await message.add_reaction(emoji)

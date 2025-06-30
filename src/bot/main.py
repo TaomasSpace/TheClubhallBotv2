@@ -16,6 +16,7 @@ from Commands.funCommands import (
     forceLowerCase,
     fakeBan,
     addReactionRole,
+    managePrison,
 )
 from Commands.gameCommands.adminCommands import (
     addMoney,
@@ -225,11 +226,27 @@ async def hackCommand(interaction: discord.Interaction):
 )
 @app_commands.describe(emoji="Emoji to react with", role="Role to assign")
 async def addcolorreactionroleCommand(
-    interaction: discord.Interaction, emoji: str, role: discord.Role
+    interaction: discord.Interaction,
+    target_message_id: int,
+    emoji: str,
+    role: discord.Role,
 ):
     await addReactionRole.addcolorreactionrole(
-        interaction=interaction, emoji=emoji, role=role
+        interaction=interaction,
+        target_message_id=target_message_id,
+        emoji=emoji,
+        role=role,
     )
+
+
+@bot.tree.command(
+    name="manageprisonmember", description="Send or free someone from prison"
+)
+@app_commands.describe(user="Person you want to lock or free in prison")
+async def managePrisonMemberCommand(
+    interaction: discord.Interaction, user: discord.Member
+):
+    await managePrison.managePrisonMember(interaction=interaction, user=user)
 
 
 # ───── Run the Bot ─────
